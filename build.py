@@ -12,7 +12,7 @@ USER = "ShadobaDev"
 NAME = "ShadobaDev"
 EMAIL = "shadobadev@gmail.com"
 SITE = f"https://{USER.lower()}.github.io/"
-TAGLINE = "C, C++ and Python developer. Tools for comic and webtoon creators."
+TAGLINE = "Professional embedded Linux developer (C/C++). In my free time I build tools for comic and webtoon creators."
 
 
 def fetch_repos():
