@@ -1,7 +1,7 @@
-"""Generuje statyczną stronę (_site/) z publicznych repozytoriów GitHub.
+"""Generates a static site (_site/) from public GitHub repositories.
 
-Statyczny HTML zamiast fetch() w przeglądarce: Google widzi linki do repo od razu.
-Uruchom lokalnie: python build.py  -> otwórz _site/index.html
+Static HTML instead of fetch() in the browser: Google sees repo links immediately.
+Run locally: python build.py  -> open _site/index.html
 """
 import json, os, urllib.request
 from datetime import date
@@ -12,7 +12,7 @@ USER = "ShadobaDev"
 NAME = "ShadobaDev"
 EMAIL = "shadobadev@gmail.com"
 SITE = f"https://{USER.lower()}.github.io/"
-TAGLINE = "Programista C, C++ i Pythona. Narzędzia dla twórców komiksów i webtoonów."
+TAGLINE = "C, C++ and Python developer. Tools for comic and webtoon creators."
 
 
 def fetch_repos():
@@ -21,7 +21,7 @@ def fetch_repos():
         req.add_header("Authorization", f"Bearer {token}")
     with urllib.request.urlopen(req) as r:
         repos = json.load(r)
-    # tylko własne, niezarchiwizowane repo z opisem; pomijamy repo samej strony
+    # only own, non-archived repos with a description; skip the site's own repo
     return [r for r in repos if r["description"] and not r["fork"] and not r["archived"]
             and r["name"].lower() != f"{USER.lower()}.github.io"]
 
@@ -59,12 +59,12 @@ def ld_json(repos):
 def page(repos):
     names = ", ".join(r["name"] for r in repos)
     return f"""<!doctype html>
-<html lang="pl">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{NAME} – portfolio projektów open source</title>
-<meta name="description" content="{escape(TAGLINE)} Projekty: {escape(names)}.">
+<title>{NAME} – open source project portfolio</title>
+<meta name="description" content="{escape(TAGLINE)} Projects: {escape(names)}.">
 <link rel="canonical" href="{SITE}">
 <meta property="og:type" content="profile">
 <meta property="og:title" content="{NAME} – portfolio">
@@ -97,18 +97,18 @@ footer {{ margin-top:48px; color:var(--mute); font-size:.85rem; }}
 <body>
 <main>
 <header>
-  <img src="https://github.com/{USER}.png?size=192" alt="Avatar {NAME}" width="96" height="96">
+  <img src="https://github.com/{USER}.png?size=192" alt="{NAME} avatar" width="96" height="96">
   <div>
     <h1>{NAME}</h1>
     <p class="lead">{escape(TAGLINE)}</p>
     <p class="lead"><a href="mailto:{EMAIL}">{EMAIL}</a> · <a href="https://github.com/{USER}" rel="me">github.com/{USER}</a></p>
   </div>
 </header>
-<h2>Projekty</h2>
+<h2>Projects</h2>
 <section class="grid">
 {chr(10).join(card(r) for r in repos)}
 </section>
-<footer>Zaktualizowano {date.today().isoformat()}</footer>
+<footer>Updated {date.today().isoformat()}</footer>
 </main>
 </body>
 </html>
@@ -120,6 +120,7 @@ def main():
     out = Path("_site")
     out.mkdir(exist_ok=True)
     (out / "index.html").write_text(page(repos), encoding="utf-8")
+    (out / "googleb60ec623b69e2eb9.html").write_text("google-site-verification: googleb60ec623b69e2eb9.html", encoding="utf-8")
     (out / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {SITE}sitemap.xml\n", encoding="utf-8")
     (out / "sitemap.xml").write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -127,7 +128,7 @@ def main():
         f"<url><loc>{SITE}</loc><lastmod>{date.today().isoformat()}</lastmod></url>\n</urlset>\n",
         encoding="utf-8")
     assert repos and f"mailto:{EMAIL}" in (out / "index.html").read_text(encoding="utf-8")
-    print(f"OK: {len(repos)} repo -> {out.resolve()}")
+    print(f"OK: {len(repos)} repos -> {out.resolve()}")
 
 
 if __name__ == "__main__":
